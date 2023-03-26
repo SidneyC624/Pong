@@ -40,7 +40,8 @@ public class GamePanel extends JPanel implements Runnable{
 	}
 	
 	public void newBall() {
-		
+		random  = new Random();
+		ball = new Ball((GAME_WIDTH/2-BALL_DIAMETER/2), (GAME_HEIGHT/2-BALL_DIAMETER/2), BALL_DIAMETER, BALL_DIAMETER);
 	}
 	
 	public void paint(Graphics g) {
@@ -53,13 +54,61 @@ public class GamePanel extends JPanel implements Runnable{
 	public void draw(Graphics g) {
 		paddle1.draw(g);
 		paddle2.draw(g);
+		ball.draw(g);
 	}
 	
 	public void move() {
+		paddle1.move();
+		paddle2.move();
+		ball.move();
 		
 	}
 	
 	public void checkCollision() {
+		
+		//bounce ball off top & bottom window edge
+		
+		if(ball.y <= 0) {
+			ball.setYDirection(-ball.YVelocity);
+		}
+		if(ball.y >= GAME_HEIGHT-BALL_DIAMETER) {
+			ball.setYDirection(-ball.YVelocity);
+		}
+		if(ball.x <= 0) {
+			ball.setXDirection(-ball.XVelocity);
+		}
+		if(ball.x >= GAME_WIDTH-BALL_DIAMETER) {
+			ball.setXDirection(-ball.XVelocity);
+		}
+		
+		// bounce ball of paddles
+		
+		if(ball.intersects(paddle1)) {
+			ball.XVelocity = -ball.XVelocity;
+			ball.XVelocity++; // for more difficulty
+			if(ball.YVelocity > 0) {
+				ball.YVelocity++; // for more difficulty
+			}
+			else {
+				ball.YVelocity--; // for more difficulty
+			}
+			ball.setXDirection(ball.XVelocity);
+			ball.setYDirection(ball.YVelocity);
+		}
+		
+		if(ball.intersects(paddle2)) {
+			ball.XVelocity = -ball.XVelocity;
+			ball.XVelocity++;
+			if(ball.YVelocity > 0) {
+				ball.YVelocity++;
+			}
+			else {
+				ball.YVelocity--;
+			}
+			ball.setXDirection(ball.XVelocity);
+			ball.setYDirection(ball.YVelocity);
+		}
+		
 		// stops paddles at window edge
 	
 		if(paddle1.y <= 0) {
@@ -92,6 +141,7 @@ public class GamePanel extends JPanel implements Runnable{
 				move();
 				checkCollision();
 				repaint();
+				delta--;
 			}
 		}
 	}
