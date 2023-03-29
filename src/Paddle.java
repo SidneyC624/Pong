@@ -75,9 +75,13 @@ public class Paddle extends Rectangle{
 		if(id == 1) {
 			g.setColor(Color.blue);
 		}
-		else {
+		else if (id == 2) {
 			g.setColor(Color.red);
+		}
+		else if(id == 3) {
+			g.setColor(Color.green);
 		}
 		g.fillRect(x, y, width, height);
 	}
 }
+;

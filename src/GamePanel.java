@@ -16,8 +16,10 @@ public class GamePanel extends JPanel implements Runnable{
 	Random random;
 	Paddle paddle1;
 	Paddle paddle2;
+	Paddle paddleBot;
 	Ball ball;
 	Score score;
+	
 	
 	GamePanel() {
 		
@@ -37,6 +39,8 @@ public class GamePanel extends JPanel implements Runnable{
 	public void newPaddle() {
 		paddle1 = new Paddle(0, (GAME_HEIGHT/2 - PADDLE_HEIGHT/2), PADDLE_WIDTH, PADDLE_HEIGHT, 1);
 		paddle2 = new Paddle(GAME_WIDTH-PADDLE_WIDTH, (GAME_HEIGHT/2 - PADDLE_HEIGHT/2), PADDLE_WIDTH, PADDLE_HEIGHT, 2);
+		paddleBot = new Paddle(GAME_WIDTH/2-PADDLE_WIDTH/2, GAME_HEIGHT/2-PADDLE_HEIGHT/2, PADDLE_WIDTH, PADDLE_HEIGHT, 3);
+		paddleBot.setYDirection(5);
 	}
 	
 	public void newBall() {
@@ -54,6 +58,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public void draw(Graphics g) {
 		paddle1.draw(g);
 		paddle2.draw(g);
+		paddleBot.draw(g);
 		ball.draw(g);
 		score.draw(g);
 	}
@@ -61,6 +66,7 @@ public class GamePanel extends JPanel implements Runnable{
 	public void move() {
 		paddle1.move();
 		paddle2.move();
+		paddleBot.move();
 		ball.move();
 		
 	}
@@ -82,7 +88,23 @@ public class GamePanel extends JPanel implements Runnable{
 			ball.setXDirection(-ball.XVelocity);
 		}
 		
-		// bounce ball of paddles
+		//bounce ball of paddle bot
+		
+		if(ball.intersects(paddleBot)) {
+			ball.XVelocity = -ball.XVelocity;
+			ball.XVelocity++; 
+			if(ball.YVelocity > 0) {
+				ball.YVelocity++; 
+			}
+			else {
+				ball.YVelocity--; 
+			}
+			ball.setXDirection(ball.XVelocity);
+			ball.setYDirection(ball.YVelocity);
+		}
+			
+		
+		// bounce ball off paddles
 		
 		if(ball.intersects(paddle1)) {
 			ball.XVelocity = -ball.XVelocity;
@@ -110,6 +132,15 @@ public class GamePanel extends JPanel implements Runnable{
 			ball.setYDirection(ball.YVelocity);
 		}
 		
+		//bounce paddle bot at window edge
+		
+		if(paddleBot.y >= GAME_HEIGHT-PADDLE_HEIGHT) {
+			paddleBot.setYDirection(-paddleBot.yVelocity);
+		}
+		if(paddleBot.y <= 0) {
+			paddleBot.setYDirection(-paddleBot.yVelocity);
+		}
+		
 		// stops paddles at window edge
 	
 		if(paddle1.y <= 0) {
@@ -131,20 +162,19 @@ public class GamePanel extends JPanel implements Runnable{
 			score.player2++;
 			newPaddle();
 			newBall();
-			System.out.println("Player 2: " + score.player2);
+			
 		}
 		
 		if(ball.x >= GAME_WIDTH-BALL_DIAMETER) {
 			score.player1++;
 			newPaddle();
 			newBall();
-			System.out.println("Player 1: " + score.player2);
+			
 		}
 	}
 	
 	public void run() {
 		// game loop
-		
 		long lastTime = System.nanoTime();
 		double amountOfTicks = 60;
 		double ns = 1000000000 / amountOfTicks;
@@ -153,7 +183,7 @@ public class GamePanel extends JPanel implements Runnable{
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
-			if(delta >= 1) {
+			if(delta >= 1) {					
 				move();
 				checkCollision();
 				repaint();
